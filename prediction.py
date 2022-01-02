@@ -33,8 +33,10 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
     for item in fields:
         if item["require"] == "Pais":
             countryColumn = item["match"]
-        if item["require"] == "Departamento":
+        if item["require"] == "Region":
             regionColumn = item["match"]
+        if item["require"] == "Departamento":
+            deptoColumn = item["match"]
         if item["require"] == "Region":
             regionColumn = item["match"]
         if item["require"] == "Fecha":
@@ -65,31 +67,42 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
         df = filterRows(df, countryColumn, countryField)
         df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
-        # TODO: INIT PREDICT METHOD
         df_x = df_ready[0]
         df_y = df_ready[1]
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
             daysField,
-            title,
-            "Casos confirmados",
+            f"Predicción de infectados en {countryField}",
+            "Infectados",
         )
-        print(pre)
         return pre
     elif title == "Predicción de mortalidad por COVID en un Departamento":
         daysField = ""
+        countryField = ""
         deptoField = ""
         for filt in filtering:
             if filt["key"] == "Dias":
                 daysField = filt["value"]
+            elif filt["key"] == "Pais":
+                countryField = filt["value"]
             elif filt["key"] == "Departamento":
                 deptoField = filt["value"]
 
+        df = filterRows(df, countryColumn, countryField)
         df = filterRows(df, deptoColumn, deptoField)
         df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
-        # TODO: INIT PREDICT METHOD
+        df_x = df_ready[0]
+        df_y = df_ready[1]
+        pre = predict(
+            np.asarray(df_x["Days"]).reshape(-1, 1),
+            df_y[deathColumn],
+            daysField,
+            f"Predicción de mortalidad en {deptoField}, {countryField}",
+            "Muertes",
+        )
+        return pre
     elif title == "Predicción de mortalidad por COVID en un País":
         daysField = ""
         countryField = ""
@@ -102,20 +115,40 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
         df = filterRows(df, countryColumn, countryField)
         df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
-        # TODO: INIT PREDICT METHOD
+        df_x = df_ready[0]
+        df_y = df_ready[1]
+        pre = predict(
+            np.asarray(df_x["Days"]).reshape(-1, 1),
+            df_y[deathColumn],
+            daysField,
+            f"Predicción de mortalidad en {countryField}",
+            "Muertes",
+        )
+        return pre
     elif title == "Predicción de casos de un país para un año":
-        añoField = ""
+        yearField = ""
         countryField = ""
         for filt in filtering:
             if filt["key"] == "Pais":
                 countryField = filt["value"]
-            elif filt["key"] == "Dias":
-                añoField = filt["value"]
+            elif filt["key"] == "Año":
+                yearField = filt["value"]
 
         df = filterRows(df, countryColumn, countryField)
         df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
-        # TODO: INIT PREDICT METHOD
+        df_x = df_ready[0]
+        df_y = df_ready[1]
+        daysPredicted = int(yearField) * 365
+        print(f"Days predicted: {daysPredicted}")
+        pre = predict(
+            np.asarray(df_x["Days"]).reshape(-1, 1),
+            df_y[confirmColumn],
+            daysPredicted,
+            f"Predicción de mortalidad en {countryField} para {yearField} años",
+            "Confirmados",
+        )
+        return pre
     elif (
         title
         == "Predicción de muertes en el último día del primer año de infecciones en un país"
@@ -128,7 +161,17 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
         df = filterRows(df, countryColumn, countryColumn)
         df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
-        # TODO: INIT PREDICT METHOD
+        df_x = df_ready[0]
+        df_y = df_ready[1]
+        # TODO: predictToEndYear
+        pre = predict(
+            np.asarray(df_x["Days"]).reshape(-1, 1),
+            df_y[deathColumn],
+            365,
+            f"Predicción de mortalidad en {countryField} para el último día del primer año",
+            "Muertes",
+        )
+        return pre
     elif (
         title
         == "Predicciones de casos y muertes en todo el mundo - Neural Network MLPRegressor"
@@ -140,19 +183,44 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
                 daysField = filt["value"]
         df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
-        # TODO: INIT PREDICT METHOD
+        df_x = df_ready[0]
+        df_y = df_ready[1]
+        pre_confirms = predict(
+            np.asarray(df_x["Days"]).reshape(-1, 1),
+            df_y[confirmColumn],
+            daysField,
+            f"Predicción de mortalidad",
+            "Confirmados",
+        )
+        pre_deaths = predict(
+            np.asarray(df_x["Days"]).reshape(-1, 1),
+            df_y[deathColumn],
+            daysField,
+            f"Predicción de mortalidad",
+            "Muertes",
+        )
+        return pre_confirms
     else:  # Predicción de casos confirmados por día
         daysField = ""
         for filt in filtering:
             if filt["key"] == "Dias":
-
                 daysField = filt["value"]
         df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
-        # TODO: INIT PREDICT METHOD
+        df_x = df_ready[0]
+        df_y = df_ready[1]
+        pre = predict(
+            np.asarray(df_x["Days"]).reshape(-1, 1),
+            df_y[confirmColumn],
+            daysField,
+            f"Predicción de casos confirmados por día",
+            "Confirmados",
+        )
+        return pre
 
 
 def filterRows(dataFrame: DataFrame, columnName: str, rowName: str) -> DataFrame:
+    print(f"filtrar {columnName} por {rowName}")
     dataFrame = dataFrame.loc[lambda x: x[columnName] == rowName]
     return dataFrame
 

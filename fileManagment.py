@@ -1,8 +1,8 @@
 import base64
 from google.cloud import storage
 
-client = storage.Client()
-bucket = client.get_bucket("resources-covid19-olc")
+# client = storage.Client()
+# bucket = client.get_bucket("resources-covid19-olc")
 
 
 def saveDataFile(fileb64: str, ext: str):
