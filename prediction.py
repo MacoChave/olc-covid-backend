@@ -20,33 +20,22 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
 
     countryColumn = ""
     deptoColumn = ""
-    regionColumn = ""
     dateColumn = ""
     confirmColumn = ""
     deathColumn = ""
-    recoveredColumn = ""
-    genreColumn = ""
 
     # GET COLUMN NAMES
     for item in fields:
         if item["require"] == "Pais":
             countryColumn = item["match"]
-        if item["require"] == "Region":
-            regionColumn = item["match"]
         if item["require"] == "Departamento":
             deptoColumn = item["match"]
-        if item["require"] == "Region":
-            regionColumn = item["match"]
         if item["require"] == "Fecha":
             dateColumn = item["match"]
         if item["require"] == "Confirmados":
             confirmColumn = item["match"]
         if item["require"] == "Muertes":
             deathColumn = item["match"]
-        if item["require"] == "Recuperados":
-            recoveredColumn = item["match"]
-        if item["require"] == "Genero":
-            genreColumn = item["match"]
 
     # CREATE YEAR, MONTH COLUMNS FROM DATE COLUMN
     # dateRow = df.iloc[0][dateColumn]
@@ -205,7 +194,13 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
             "Muertes",
         )
         genGraph(pre_confirms[5], pre_deaths[5])
-        return pre_confirms
+        return [
+            pre_confirms[0],
+            pre_confirms[1],
+            f"Casos = {pre_confirms[2]} - Muertes = {pre_deaths[2]}",
+            pre_confirms[3],
+            f"Casos = {pre_confirms[4]} - Muertes = {pre_deaths[4]}",
+        ]
     else:  # Predicción de casos confirmados por día
         daysField = ""
         for filt in filtering:

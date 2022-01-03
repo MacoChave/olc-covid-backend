@@ -2,8 +2,8 @@ import base64
 import boto3
 from botocore.exceptions import NoCredentialsError
 
-ACCESS_KEY = "AKIARP7L66YMDOCIAFJG"
-SECRET_KEY = "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"
+ACCESS_KEY = "ACCESS_KEY"
+SECRET_KEY = "SECRET_KEY"
 BUCKET = "res-covid19-olc"
 
 

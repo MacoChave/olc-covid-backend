@@ -20,34 +20,23 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
         df = pd.read_excel("dataFile.xlsx")
 
     countryColumn = ""
-    deptoColumn = ""
-    regionColumn = ""
-    dateColumn = ""
     confirmColumn = ""
-    deathColumn = ""
-    recoveredColumn = ""
-    genreColumn = ""
+    dateColumn = ""
+    deptoColumn = ""
+    vaccineColumn = ""
 
     # GET COLUMN NAMES
     for item in fields:
         if item["require"] == "Pais":
             countryColumn = item["match"]
-        if item["require"] == "Region":
-            regionColumn = item["match"]
-        if item["require"] == "Departamento":
-            deptoColumn = item["match"]
-        if item["require"] == "Region":
-            regionColumn = item["match"]
-        if item["require"] == "Fecha":
-            dateColumn = item["match"]
         if item["require"] == "Confirmados":
             confirmColumn = item["match"]
-        if item["require"] == "Muertes":
-            deathColumn = item["match"]
-        if item["require"] == "Recuperados":
-            recoveredColumn = item["match"]
-        if item["require"] == "Genero":
-            genreColumn = item["match"]
+        if item["require"] == "Fecha":
+            dateColumn = item["match"]
+        if item["require"] == "Departamento":
+            deptoColumn = item["match"]
+        if item["require"] == "Vacunación":
+            vaccineColumn = item["match"]
 
     # CREATE YEAR, MONTH COLUMNS FROM DATE COLUMN
     # dateRow = df.iloc[0][dateColumn]
@@ -55,7 +44,7 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
     df["Year"] = df["JoinedDate"].dt.year
     df["Month"] = df["JoinedDate"].dt.month
 
-    if title == "Predicción de infectados en un País":
+    if title == "Tendencia de la infección por Covid-19 en un País":
         daysField = ""
         countryField = ""
         for filt in filtering:
@@ -73,11 +62,11 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
             daysField,
-            f"Predicción de infectados en {countryField}",
+            f"Tendencia de infectados en {countryField}",
             "Infectados",
         )
         return pre
-    elif title == "Predicción de mortalidad por COVID en un Departamento":
+    elif title == "Tendencia del número de infectados por día de un País":
         daysField = ""
         countryField = ""
         deptoField = ""
@@ -99,11 +88,11 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[deathColumn],
             daysField,
-            f"Predicción de mortalidad en {deptoField}, {countryField}",
-            "Muertes",
+            f"Tendenciade infectados en {countryField}",
+            "Infectados",
         )
         return pre
-    elif title == "Predicción de mortalidad por COVID en un País":
+    elif title == "Tendencia de la vacunación de un País":
         daysField = ""
         countryField = ""
         for filt in filtering:
@@ -121,8 +110,8 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[deathColumn],
             daysField,
-            f"Predicción de mortalidad en {countryField}",
-            "Muertes",
+            f"Tendencia de vacunación en {countryField}",
+            "Vacunación",
         )
         return pre
     elif title == "Predicción de casos de un país para un año":
@@ -149,78 +138,27 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             "Confirmados",
         )
         return pre
-    elif (
-        title
-        == "Predicción de muertes en el último día del primer año de infecciones en un país"
-    ):
+    else:  # "Tendencia de casos confirmados de Coronavirus en un departamento de un País"
         countryField = ""
+        deptoField = ""
         for filt in filtering:
             if filt["key"] == "Pais":
                 countryField = filt["value"]
+            if filt["key"] == "Departamento":
+                deptoField = filt["value"]
 
         df = filterRows(df, countryColumn, countryColumn)
-        df["Days"] = np.arange(len(df))
+        df = filterRows(df, deptoField, deptoField)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_y = df_ready[1]
+        df_x["Days"] = np.arange(len(df_x))
         # TODO: predictToEndYear
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[deathColumn],
             365,
-            f"Predicción de mortalidad en {countryField} para el último día del primer año",
-            "Muertes",
-        )
-        return pre
-    elif (
-        title
-        == "Predicciones de casos y muertes en todo el mundo - Neural Network MLPRegressor"
-    ):
-        daysField = ""
-        for filt in filtering:
-            if filt["key"] == "Dias":
-
-                daysField = filt["value"]
-        df["Days"] = np.arange(len(df))
-        df_ready = cleanRows(df, dateColumn)
-        df_x = df_ready[0]
-        df_y = df_ready[1]
-        if len(df_x) > len(df_y):
-            df_x = df_x[:-1]
-        else:
-            df_y = df_y[:-1]
-        print(df_x)
-        print(df_y)
-        pre_confirms = predict(
-            np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[confirmColumn],
-            daysField,
-            f"Predicción de mortalidad",
-            "Confirmados",
-        )
-        pre_deaths = predict(
-            np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[deathColumn],
-            daysField,
-            f"Predicción de mortalidad",
-            "Muertes",
-        )
-        genGraph(pre_confirms[5], pre_deaths[5])
-        return pre_confirms
-    else:  # Predicción de casos confirmados por día
-        daysField = ""
-        for filt in filtering:
-            if filt["key"] == "Dias":
-                daysField = filt["value"]
-        df["Days"] = np.arange(len(df))
-        df_ready = cleanRows(df, dateColumn)
-        df_x = df_ready[0]
-        df_y = df_ready[1]
-        pre = predict(
-            np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[confirmColumn],
-            daysField,
-            f"Predicción de casos confirmados por día",
+            f"Tendencia de casos confirmados en {deptoField}, {countryField}",
             "Confirmados",
         )
         return pre
