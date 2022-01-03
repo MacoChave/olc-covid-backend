@@ -1,14 +1,15 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 from pandas.core.frame import DataFrame
+from colors import colors
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
-from colors import colors
 
 
-def getPredict(fields, filtering, ext, sep, title) -> list:
+def getTrend(fields, filtering, ext, sep, title) -> list:
     df = None
 
     if ext == "csv":
@@ -144,7 +145,7 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
             daysPredicted,
-            f"Predicción de casos en {countryField} para {yearField} años",
+            f"Predicción de mortalidad en {countryField} para {yearField} años",
             "Confirmados",
         )
         return pre
@@ -194,7 +195,7 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
             daysField,
-            f"Predicción de casos",
+            f"Predicción de mortalidad",
             "Confirmados",
         )
         pre_deaths = predict(

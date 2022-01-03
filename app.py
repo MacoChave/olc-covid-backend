@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 
 from prediction import getPredict
+from trend import getTrend
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -42,8 +43,7 @@ def predict():
         title = json_data["title"]
         saveDataFile(fileb64, ext)
         res = getPredict(field, filtering, ext, sep, title)
-        graph = uploadImage("prediction.jpg")
-        # graph = ""
+        # graph = uploadImage("prediction.jpg")
         return jsonify(
             {
                 "RMSE": res[0],
@@ -51,7 +51,7 @@ def predict():
                 "Ecuacion": res[2],
                 "Intercepto": res[3],
                 "Predecir": res[4],
-                "Grafica": graph,
+                "Grafica": "graph",
             }
         )
     except:
@@ -70,7 +70,26 @@ def predict():
 @app.route("/trend", methods=["POST"])
 @cross_origin()
 def trend():
-    return jsonify({"message": "Tendence POST"})
+    json_data = request.get_json()
+    ext = json_data["ext"]
+    field = json_data["field"]
+    fileb64 = json_data["file"]
+    filtering = json_data["filter"]
+    sep = json_data["sep"]
+    title = json_data["title"]
+    saveDataFile(fileb64, ext)
+    res = getTrend(field, filtering, ext, sep, title)
+    # graph = uploadImage("prediction.jpg")
+    return jsonify(
+        {
+            "RMSE": "res[0]",
+            "r^2": "res[1]",
+            "Ecuacion": "res[2]",
+            "Intercepto": "res[3]",
+            "Predecir": "res[4]",
+            "Grafica": "graph",
+        }
+    )
 
 
 @app.route("/percentage", methods=["POST"])
