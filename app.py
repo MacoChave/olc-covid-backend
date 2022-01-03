@@ -82,11 +82,11 @@ def trend():
     # graph = uploadImage("prediction.jpg")
     return jsonify(
         {
-            "RMSE": "res[0]",
-            "r^2": "res[1]",
-            "Ecuacion": "res[2]",
-            "Intercepto": "res[3]",
-            "Predecir": "res[4]",
+            "RMSE": res[0],
+            "r^2": res[1],
+            "Ecuacion": res[2],
+            "Intercepto": res[3],
+            "Coeficiente": res[4],
             "Grafica": "graph",
         }
     )

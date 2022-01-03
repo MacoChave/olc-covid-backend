@@ -45,13 +45,10 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
     df["Month"] = df["JoinedDate"].dt.month
 
     if title == "Tendencia de la infección por Covid-19 en un País":
-        daysField = ""
         countryField = ""
         for filt in filtering:
             if filt["key"] == "Pais":
                 countryField = filt["value"]
-            elif filt["key"] == "Dias":
-                daysField = filt["value"]
 
         df = filterRows(df, countryColumn, countryField)
         df_ready = cleanRows(df, dateColumn)
@@ -61,81 +58,44 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
-            daysField,
             f"Tendencia de infectados en {countryField}",
             "Infectados",
         )
         return pre
     elif title == "Tendencia del número de infectados por día de un País":
-        daysField = ""
         countryField = ""
-        deptoField = ""
         for filt in filtering:
-            if filt["key"] == "Dias":
-                daysField = filt["value"]
-            elif filt["key"] == "Pais":
+            if filt["key"] == "Pais":
                 countryField = filt["value"]
-            elif filt["key"] == "Departamento":
-                deptoField = filt["value"]
 
         df = filterRows(df, countryColumn, countryField)
-        df = filterRows(df, deptoColumn, deptoField)
-        df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_y = df_ready[1]
+        df_x["Days"] = np.arange(len(df_x))
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[deathColumn],
-            daysField,
+            df_y[confirmColumn],
             f"Tendenciade infectados en {countryField}",
             "Infectados",
         )
         return pre
     elif title == "Tendencia de la vacunación de un País":
-        daysField = ""
         countryField = ""
         for filt in filtering:
             if filt["key"] == "Pais":
                 countryField = filt["value"]
-            elif filt["key"] == "Dias":
-                daysField = filt["value"]
 
         df = filterRows(df, countryColumn, countryField)
-        df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_y = df_ready[1]
+        df_x["Days"] = np.arange(len(df_x))
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[deathColumn],
-            daysField,
+            df_y[vaccineColumn],
             f"Tendencia de vacunación en {countryField}",
             "Vacunación",
-        )
-        return pre
-    elif title == "Predicción de casos de un país para un año":
-        yearField = ""
-        countryField = ""
-        for filt in filtering:
-            if filt["key"] == "Pais":
-                countryField = filt["value"]
-            elif filt["key"] == "Año":
-                yearField = filt["value"]
-
-        df = filterRows(df, countryColumn, countryField)
-        df["Days"] = np.arange(len(df))
-        df_ready = cleanRows(df, dateColumn)
-        df_x = df_ready[0]
-        df_y = df_ready[1]
-        daysPredicted = int(yearField) * 365
-        print(f"Days predicted: {daysPredicted}")
-        pre = predict(
-            np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[confirmColumn],
-            daysPredicted,
-            f"Predicción de mortalidad en {countryField} para {yearField} años",
-            "Confirmados",
         )
         return pre
     else:  # "Tendencia de casos confirmados de Coronavirus en un departamento de un País"
@@ -148,16 +108,14 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
                 deptoField = filt["value"]
 
         df = filterRows(df, countryColumn, countryColumn)
-        df = filterRows(df, deptoField, deptoField)
+        df = filterRows(df, deptoColumn, deptoField)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_y = df_ready[1]
         df_x["Days"] = np.arange(len(df_x))
-        # TODO: predictToEndYear
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[deathColumn],
-            365,
+            df_y[confirmColumn],
             f"Tendencia de casos confirmados en {deptoField}, {countryField}",
             "Confirmados",
         )
@@ -176,13 +134,10 @@ def cleanRows(dataFrame: DataFrame, date):
     return [df_cleaned, df_summed]
 
 
-def predict(x, y, daysPredicted: int, title: str, y_label: str) -> list:
-    pf = PolynomialFeatures(degree=2)
-    x_ = pf.fit_transform(x)
-
+def predict(x, y, title: str, y_label: str) -> list:
     regr = LinearRegression()
-    regr.fit(x_, y)
-    y_ = regr.predict(x_)
+    regr.fit(x, y)
+    y_ = regr.predict(x)
 
     # GRAFICA
     indexColor = 2
@@ -197,48 +152,18 @@ def predict(x, y, daysPredicted: int, title: str, y_label: str) -> list:
     fig, ax = plt.subplots()
 
     ax.scatter(x, y, color=colors[indexColor]["scatColor"], label="Muestra")
-    ax.plot(x, y_, color=colors[indexColor]["plotColor"], label="Modelo")
+    ax.plot(x, y_, color=colors[indexColor]["plotColor"], label="Tendencia")
     ax.legend()
 
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("prediction.jpg")
+    plt.savefig("tendencia.jpg")
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
     coef = regr.coef_
     intercept = regr.intercept_
-    equation = f"y =  {coef[-1]} x^2 + {coef[-2]} x + {intercept}"
+    equation = f"y =  {coef[-1]} b + {intercept}"
 
-    # predict = (
-    #     coef[-1] * (int(daysPredicted) ** 2) + coef[-2] * int(daysPredicted) + intercept
-    # )
-
-    x_min = int(daysPredicted)
-    x_max = int(daysPredicted)
-    x_new = np.linspace(x_min, x_max)
-    x_new = x_new[:, np.newaxis]
-    x_ = pf.fit_transform(x_new)
-
-    predict = regr.predict(x_)[-1]
-
-    return [rmse, r2, equation, intercept, predict, [x, y, y_]]
-
-
-def genGraph(data1, data2):
-    # title, y_label, x, y, y_
-    fig, ax = plt.subplots()
-
-    ax.scatter(data1[0], data1[1], color=colors[-1]["scatColor"], label="Casos")
-    ax.plot(data1[0], data1[2], color=colors[-1]["plotColor"], label="Modelo casos")
-
-    ax.scatter(data2[0], data2[1], color=colors[0]["scatColor"], label="Muertes")
-    ax.plot(data2[0], data2[2], color=colors[0]["plotColor"], label="Modelo muertes")
-
-    ax.legend()
-
-    plt.title("Predicción de casos y muertes")
-    plt.xlabel("Días")
-    plt.ylabel("Casos / Muertes")
-    plt.savefig("prediction.jpg")
+    return [rmse, r2, equation, intercept, coef[-1]]
