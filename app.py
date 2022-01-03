@@ -32,31 +32,39 @@ def upload():
 @app.route("/predict", methods=["POST"])
 @cross_origin()
 def predict():
-    json_data = request.get_json()
-    ext = json_data["ext"]
-    field = json_data["field"]
-    fileb64 = json_data["file"]
-    filtering = json_data["filter"]
-    sep = json_data["sep"]
-    title = json_data["title"]
-    saveDataFile(fileb64, ext)
-    res = getPredict(field, filtering, ext, sep, title)
-    # graph = uploadImage("prediction.jpg")
-    # print('Imagen en: ', graph)
-    graph = ""
-    return jsonify(
-        {
-            "RMSE": res[0],
-            "r^2": res[1],
-            "Ecuacion": res[2],
-            "Intercepto": res[3],
-            "Predecir": res[4],
-            "Grafica": graph,
-        }
-    )
-    # try:
-    # except:
-    #     return jsonify({"Message": "Error en analizar entrada"})
+    try:
+        json_data = request.get_json()
+        ext = json_data["ext"]
+        field = json_data["field"]
+        fileb64 = json_data["file"]
+        filtering = json_data["filter"]
+        sep = json_data["sep"]
+        title = json_data["title"]
+        saveDataFile(fileb64, ext)
+        res = getPredict(field, filtering, ext, sep, title)
+        graph = uploadImage("prediction.jpg")
+        # graph = ""
+        return jsonify(
+            {
+                "RMSE": res[0],
+                "r^2": res[1],
+                "Ecuacion": res[2],
+                "Intercepto": res[3],
+                "Predecir": res[4],
+                "Grafica": graph,
+            }
+        )
+    except:
+        return jsonify(
+            {
+                "RMSE": "",
+                "r^2": "",
+                "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
+                "Intercepto": "",
+                "Predecir": "",
+                "Grafica": "",
+            }
+        )
 
 
 @app.route("/trend", methods=["POST"])
