@@ -1,4 +1,4 @@
-from fileManagment import openImageB64, saveDataFile
+from fileManagment import saveDataFile, uploadImage
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 
@@ -41,7 +41,9 @@ def predict():
     title = json_data["title"]
     saveDataFile(fileb64, ext)
     res = getPredict(field, filtering, ext, sep, title)
-    # uploadImage("prediction.jpg")
+    # graph = uploadImage("prediction.jpg")
+    # print('Imagen en: ', graph)
+    graph = ""
     return jsonify(
         {
             "RMSE": res[0],
@@ -49,7 +51,7 @@ def predict():
             "Ecuacion": res[2],
             "Intercepto": res[3],
             "Predecir": res[4],
-            "Grafica": "url",
+            "Grafica": graph,
         }
     )
     # try:
@@ -70,4 +72,5 @@ def percentage():
 
 
 if __name__ == "__main__":
+    # app.run(host="0.0.0.0", port="8080", debug=True)
     app.run(debug=True)

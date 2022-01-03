@@ -1,13 +1,24 @@
 from pandas.core.frame import DataFrame
-from fileManagment import openImageB64
 import numpy as np
 import pandas as pd
-import datetime
 import matplotlib.pyplot as plt
-import json
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
+
+colors = [
+    {"scatColor": "red", "plotColor": "darkred"},
+    {"scatColor": "orange", "plotColor": "orangered"},
+    {"scatColor": "lightgreen", "plotColor": "green"},
+    {"scatColor": "lightblue", "plotColor": "blue"},
+    {"scatColor": "lightskyblue", "plotColor": "skyblue"},
+    {"scatColor": "lightsteelblue", "plotColor": "steelblue"},
+    {"scatColor": "magenta", "plotColor": "darkmagenta"},
+    {"scatColor": "violet", "plotColor": "darkviolet"},
+    {"scatColor": "orchid", "plotColor": "darkorchid"},
+    {"scatColor": "slateblue", "plotColor": "darkslateblue"},
+    {"scatColor": "blue", "plotColor": "darkblue"},
+]
 
 
 def getPredict(fields, filtering, ext, sep, title) -> list:
@@ -51,7 +62,8 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
             genreColumn = item["match"]
 
     # CREATE YEAR, MONTH COLUMNS FROM DATE COLUMN
-    df["JoinedDate"] = pd.to_datetime(df[dateColumn])
+    # dateRow = df.iloc[0][dateColumn]
+    df["JoinedDate"] = pd.to_datetime(df[dateColumn], infer_datetime_format=True)
     df["Year"] = df["JoinedDate"].dt.year
     df["Month"] = df["JoinedDate"].dt.month
 
@@ -65,10 +77,10 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
                 daysField = filt["value"]
 
         df = filterRows(df, countryColumn, countryField)
-        df["Days"] = np.arange(len(df))
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_y = df_ready[1]
+        df_x["Days"] = np.arange(len(df))
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
@@ -185,6 +197,12 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_y = df_ready[1]
+        if len(df_x) > len(df_y):
+            df_x = df_x[:-1]
+        else:
+            df_y = df_y[:-1]
+        print(df_x)
+        print(df_y)
         pre_confirms = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
@@ -199,6 +217,7 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
             f"Predicción de mortalidad",
             "Muertes",
         )
+        genGraph(pre_confirms[5], pre_deaths[5])
         return pre_confirms
     else:  # Predicción de casos confirmados por día
         daysField = ""
@@ -226,7 +245,7 @@ def filterRows(dataFrame: DataFrame, columnName: str, rowName: str) -> DataFrame
 
 
 def cleanRows(dataFrame: DataFrame, date):
-    df_cleaned = dataFrame.drop_duplicates(date)
+    df_cleaned = dataFrame.drop_duplicates("JoinedDate")
     df_summed = dataFrame.groupby(by=["Year", "Month", date]).sum()
     return [df_cleaned, df_summed]
 
@@ -239,12 +258,25 @@ def predict(x, y, daysPredicted: int, title: str, y_label: str) -> list:
     regr.fit(x_, y)
     y_ = regr.predict(x_)
 
-    plt.title(title)
-    plt.ylabel("Días")
-    plt.xlabel(y_label)
-    plt.scatter(x, y, color="gray")
-    plt.plot(x, y_, color="red")
+    # GRAFICA
+    indexColor = 2
+    if y_label == "Muertes":
+        indexColor = 0
+    elif y_label == "Confirmados" or y_label == "Infectados":
+        indexColor = -1
+    else:
+        indexColor = 2
 
+    # title, y_label, x, y, y_
+    fig, ax = plt.subplots()
+
+    ax.scatter(x, y, color=colors[indexColor]["scatColor"], label="Muestra")
+    ax.plot(x, y_, color=colors[indexColor]["plotColor"], label="Modelo")
+    ax.legend()
+
+    plt.title(title)
+    plt.xlabel("Días")
+    plt.ylabel(y_label)
     plt.savefig("prediction.jpg")
 
     rmse = np.sqrt(mean_squared_error(y, y_))
@@ -265,4 +297,22 @@ def predict(x, y, daysPredicted: int, title: str, y_label: str) -> list:
 
     predict = regr.predict(x_)[-1]
 
-    return [rmse, r2, equation, intercept, predict]
+    return [rmse, r2, equation, intercept, predict, [x, y, y_]]
+
+
+def genGraph(data1, data2):
+    # title, y_label, x, y, y_
+    fig, ax = plt.subplots()
+
+    ax.scatter(data1[0], data1[1], color=colors[-1]["scatColor"], label="Casos")
+    ax.plot(data1[0], data1[2], color=colors[-1]["plotColor"], label="Modelo casos")
+
+    ax.scatter(data2[0], data2[1], color=colors[0]["scatColor"], label="Muertes")
+    ax.plot(data2[0], data2[2], color=colors[0]["plotColor"], label="Modelo muertes")
+
+    ax.legend()
+
+    plt.title("Predicción de casos y muertes")
+    plt.xlabel("Días")
+    plt.ylabel("Casos / Muertes")
+    plt.savefig("prediction.jpg")

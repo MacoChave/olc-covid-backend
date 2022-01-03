@@ -1,8 +1,10 @@
 import base64
-from google.cloud import storage
+import boto3
+from botocore.exceptions import NoCredentialsError
 
-# client = storage.Client()
-# bucket = client.get_bucket("resources-covid19-olc")
+ACCESS_KEY = "AKIARP7L66YMDOCIAFJG"
+SECRET_KEY = "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"
+BUCKET = "res-covid19-olc"
 
 
 def saveDataFile(fileb64: str, ext: str):
@@ -18,9 +20,17 @@ def openImageB64(filename):
 
 
 def uploadImage(filename):
-    blob = bucket.blob(f"resource/{filename}")
-    blob.upload_from_filename(filename)
-    print("Archivo subido")
-    blob.make_public()
-    print(blob)
-    return blob.public_url
+    s3 = boto3.client(
+        "s3", aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY
+    )
+    with open(filename, "rb") as file:
+        try:
+            s3.upload_fileobj(file, BUCKET, filename, ExtraArgs={"ACL": "public-read"})
+            print("Upload Successful")
+            return f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{filename}"
+        except FileNotFoundError:
+            print("The file was not found")
+            return f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{filename}"
+        except NoCredentialsError:
+            print("Credentials not available")
+            return f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{filename}"
