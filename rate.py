@@ -9,7 +9,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
 
 
-def getTrend(fields, filtering, ext, sep, title) -> list:
+def getRate(fields, filtering, ext, sep, title) -> list:
     df = None
 
     if ext == "csv":
@@ -19,24 +19,30 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
     else:
         df = pd.read_excel("dataFile.xlsx")
 
+    continentColumn = ""
     countryColumn = ""
-    confirmColumn = ""
     dateColumn = ""
-    deptoColumn = ""
-    vaccineColumn = ""
+    totalColumn = ""
+    confirmColumn = ""
+    deathColumn = ""
+    recoveryColumn = ""
 
     # GET COLUMN NAMES
     for item in fields:
+        if item["require"] == "Continente":
+            continentColumn = item["match"]
         if item["require"] == "Pais":
             countryColumn = item["match"]
-        if item["require"] == "Confirmados":
-            confirmColumn = item["match"]
         if item["require"] == "Fecha":
             dateColumn = item["match"]
-        if item["require"] == "Departamento":
-            deptoColumn = item["match"]
-        if item["require"] == "Vacunación":
-            vaccineColumn = item["match"]
+        if item["require"] == "Total":
+            totalColumn = item["match"]
+        if item["require"] == "Confirmados":
+            confirmColumn = item["match"]
+        if item["require"] == "Muertes":
+            deathColumn = item["match"]
+        if item["require"] == "Recuperados":
+            recoveryColumn = item["match"]
 
     # CREATE YEAR, MONTH COLUMNS FROM DATE COLUMN
     # dateRow = df.iloc[0][dateColumn]
@@ -44,82 +50,73 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
     df["Year"] = df["JoinedDate"].dt.year
     df["Month"] = df["JoinedDate"].dt.month
 
-    if title == "Tendencia de la infección por Covid-19 en un País":
-        countryField = ""
+    if (
+        title
+        == "Tasa de comportamiento de casos activos en relación al número de muertes en un continente"
+    ):
+        continentField = ""
         for filt in filtering:
-            if filt["key"] == "Pais":
-                countryField = filt["value"]
+            if filt["key"] == "Continente":
+                continentField = filt["value"]
 
-        df = filterRows(df, countryColumn, countryField)
+        df = filterRows(df, continentColumn, continentField)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
-        df_y = df_ready[1]
         df_x["Days"] = np.arange(len(df))
+
+        df_x["Tasa"] = df_x[confirmColumn] - df_x[deathColumn]
+
+        tasa = df_x[confirmColumn].sum() - df_x[deathColumn].sum()
+
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[confirmColumn],
-            f"Tendencia de infectados en {countryField}",
+            df_x["Tasa"],
+            f"Tasa de crecimiento de casos activos en relación al númeor de muertes en {continentField}",
             "Infectados",
         )
-        return pre
-    elif title == "Tendencia del número de infectados por día de un País":
-        countryField = ""
-        for filt in filtering:
-            if filt["key"] == "Pais":
-                countryField = filt["value"]
-
-        df = filterRows(df, countryColumn, countryField)
+        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
+    elif (
+        title
+        == "Tasa de crecimiento de casos en relación con nuevos casos diarios y tasa de muerte"
+    ):
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
-        df_y = df_ready[1]
         df_x["Days"] = np.arange(len(df_x))
+
+        df_x["Tasa"] = df_x[confirmColumn] - df_x[deathColumn] - df_x[recoveryColumn]
+
+        tasa = df_x[confirmColumn].sum() - df_x[deathColumn].sum()
+        tasa = tasa - df_x[recoveryColumn].sum()
+
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[confirmColumn],
-            f"Tendencia de infectados en {countryField}",
+            df_x["Tasa"],
+            f"Tasa de crecimiento de casos en relación de casos diarios y tasa de muerte",
             "Infectados",
         )
-        return pre
-    elif title == "Tendencia de la vacunación de un País":
-        countryField = ""
+        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
+    else:  # Tasa de mortalidad por coronavirus (COVID-19) en un país
+        continentField = ""
         for filt in filtering:
             if filt["key"] == "Pais":
-                countryField = filt["value"]
-
-        df = filterRows(df, countryColumn, countryField)
-        df_ready = cleanRows(df, dateColumn)
-        df_x = df_ready[0]
-        df_y = df_ready[1]
-        df_x["Days"] = np.arange(len(df_x))
-        pre = predict(
-            np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[vaccineColumn],
-            f"Tendencia de vacunación en {countryField}",
-            "Vacunación",
-        )
-        return pre
-    else:  # "Tendencia de casos confirmados de Coronavirus en un departamento de un País"
-        countryField = ""
-        deptoField = ""
-        for filt in filtering:
-            if filt["key"] == "Pais":
-                countryField = filt["value"]
-            if filt["key"] == "Departamento":
-                deptoField = filt["value"]
+                continentField = filt["value"]
 
         df = filterRows(df, countryColumn, countryColumn)
-        df = filterRows(df, deptoColumn, deptoField)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
-        df_y = df_ready[1]
         df_x["Days"] = np.arange(len(df_x))
+
+        df_x["Tasa"] = df_x[totalColumn] - df_x[deathColumn]
+
+        tasa = df_x[totalColumn].sum() - df_x[deathColumn].sum()
+
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_y[confirmColumn],
-            f"Tendencia de casos confirmados en {deptoField}, {countryField}",
-            "Confirmados",
+            df_x["Tasa"],
+            f"Tasa de mortalidad en {continentField}",
+            "Muertes",
         )
-        return pre
+        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
 
 
 def filterRows(dataFrame: DataFrame, columnName: str, rowName: str) -> DataFrame:
@@ -158,7 +155,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("tendencia.jpg")
+    plt.savefig("tasa.jpg")
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
