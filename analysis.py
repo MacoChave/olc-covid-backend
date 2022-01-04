@@ -9,7 +9,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
 
 
-def getAnalysis(fields, filtering, ext, sep, title) -> list:
+def getAnalysis(fields, filtering, ext, sep, title) -> list[dict[str, list]]:
     df = None
 
     if ext == "csv":
@@ -47,66 +47,87 @@ def getAnalysis(fields, filtering, ext, sep, title) -> list:
     df["Month"] = df["JoinedDate"].dt.month
 
     if title == "Análisis del número de muertes por coronavirus en un País":
-        continentField = ""
+        countryField = ""
         for filt in filtering:
-            if filt["key"] == "Continente":
-                continentField = filt["value"]
+            if filt["key"] == "Pais":
+                countryField = filt["value"]
 
-        df = filterRows(df, continentColumn, continentField)
+        df = filterRows(df, countryColumn, countryField)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_x["Days"] = np.arange(len(df))
 
-        df_x["Tasa"] = df_x[confirmColumn] - df_x[deathColumn]
-
-        tasa = df_x[confirmColumn].sum() - df_x[deathColumn].sum()
-
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_x["Tasa"],
+            df_x[deathColumn],
             f"Análisis del número de muertes por coronavirus en {countryColumn}",
-            "Infectados",
+            "Muertes",
         )
-        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
-    elif title == "Análisis del número de muertes por coronavirus en un País":
-        df_ready = cleanRows(df, dateColumn)
-        df_x = df_ready[0]
-        df_x["Days"] = np.arange(len(df_x))
+        result = [
+            {
+                "pais": countryField,
+                "rmse": pre[0],
+                "r2": pre[1],
+                "ecuacion": pre[2],
+                "intercepto": pre[3],
+                "coef": pre[4],
+            }
+        ]
 
-        df_x["Tasa"] = df_x[confirmColumn] - df_x[deathColumn] - df_x[recoveryColumn]
+        return result
+    elif title == "Ánalisis Comparativo de Vacunación entre 2 paises":
+        countryField1 = ""
+        countryField2 = ""
+        for filt in filtering:
+            if filt["key"] == "Pais1":
+                countryField1 = filt["value"]
+            if filt["key"] == "Pais2":
+                countryField2 = filt["value"]
 
-        tasa = df_x[confirmColumn].sum() - df_x[deathColumn].sum()
-        tasa = tasa - df_x[recoveryColumn].sum()
-
-        pre = predict(
-            np.asarray(df_x["Days"]).reshape(-1, 1),
-            df_x["Tasa"],
-            f"Ánalisis Comparativo entres 2 o más paises o continentes",
-            "Infectados",
+        df1 = filterRows(df, countryColumn, countryField1)
+        df1_ready = cleanRows(df1, dateColumn)
+        df1_x = df1_ready[0]
+        df1_x["Days"] = np.arange(len(df1))
+        pre1 = predict(
+            np.asarray(df1_x["Days"]).reshape(-1, 1),
+            df1_x[deathColumn],
+            f"Ánalisis Comparativo de Vacunación entre 2 paises",
+            "Vacunación",
         )
-        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
+
+        df2 = filterRows(df, countryColumn, countryField2)
+        df2_ready = cleanRows(df2, dateColumn)
+        df2_x = df2_ready[0]
+        df2_x["Days"] = np.arange(len(df2))
+        pre2 = predict(
+            np.asarray(df1_x["Days"]).reshape(-1, 1),
+            df1_x[deathColumn],
+            f"Ánalisis Comparativo de Vacunación entre 2 paises",
+            "Vacunación",
+        )
+
+        genGraph([pre1[5], pre2[5]])
+        result = [{countryField1: pre1}, {countryField2: pre2}]
+
+        return result
     else:  # Ánalisis Comparativo entres 2 o más paises o continentes
-        continentField = ""
+        countryField = ""
         for filt in filtering:
             if filt["key"] == "Pais":
-                continentField = filt["value"]
+                countryField = filt["value"]
 
         df = filterRows(df, countryColumn, countryColumn)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_x["Days"] = np.arange(len(df_x))
 
-        df_x["Tasa"] = df_x[totalColumn] - df_x[deathColumn]
-
-        tasa = df_x[totalColumn].sum() - df_x[deathColumn].sum()
-
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_x["Tasa"],
-            f"Tasa de mortalidad en {continentField}",
+            f"Tasa de mortalidad en {countryField}",
             "Muertes",
         )
-        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
+        return pre
 
 
 def filterRows(dataFrame: DataFrame, columnName: str, rowName: str) -> DataFrame:
@@ -145,7 +166,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("rate.jpg")
+    plt.savefig("analysis.jpg")
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
@@ -153,4 +174,26 @@ def predict(x, y, title: str, y_label: str) -> list:
     intercept = regr.intercept_
     equation = f"y =  {coef[-1]} b + {intercept}"
 
-    return [rmse, r2, equation, intercept, coef[-1]]
+    return [rmse, r2, equation, intercept, coef[-1], [x, y, y_]]
+
+
+def genGraph(datas: list):
+    # datas -> [ {title, y_label, x, y, y_} ]
+    fig, ax = plt.subplots()
+
+    for idx, data in datas:
+        ax.scatter(data[0], data[1], color=colors[idx]["scatColor"], label="Casos")
+        ax.plot(data[0], data[2], color=colors[idx]["plotColor"], label="Modelo casos")
+
+    # ax.scatter(data1[0], data1[1], color=colors[-1]["scatColor"], label="Casos")
+    # ax.plot(data1[0], data1[2], color=colors[-1]["plotColor"], label="Modelo casos")
+
+    # ax.scatter(data2[0], data2[1], color=colors[0]["scatColor"], label="Muertes")
+    # ax.plot(data2[0], data2[2], color=colors[0]["plotColor"], label="Modelo muertes")
+
+    ax.legend()
+
+    plt.title("Analisis comparativo de vacunación entre 2 países")
+    plt.xlabel("Días")
+    plt.ylabel("Vacunación")
+    plt.savefig("analysis.jpg")
