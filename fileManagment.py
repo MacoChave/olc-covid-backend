@@ -12,7 +12,7 @@ BUCKET = json.loads(data)["BUCKET"]
 
 
 def saveDataFile(fileb64: str, ext: str):
-    with open(f"dataFile.{ext}", "wb") as fh:
+    with open(f"fileData.{ext}", "wb") as fh:
         fh.write(base64.urlsafe_b64decode(fileb64))
 
 

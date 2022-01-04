@@ -19,6 +19,8 @@ def getRate(fields, filtering, ext, sep, title) -> list:
     else:
         df = pd.read_excel("dataFile.xlsx")
 
+    df.fillna(0)
+
     continentColumn = ""
     countryColumn = ""
     dateColumn = ""

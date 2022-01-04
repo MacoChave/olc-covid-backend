@@ -1,3 +1,4 @@
+import os
 from analysis import getAnalysis
 from fileManagment import saveDataFile, uploadImage
 from flask import Flask, request, jsonify
@@ -8,11 +9,15 @@ from prediction import getPredict
 from rate import getRate
 from trend import getTrend
 
+FILENAME = "datafile"
+UPLOAD_FOLDER = "./"
+ALLOWED_EXTENSIONS = {"csv", "json", "xlsx", "xls"}
+
 app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
-
-FILENAME = "datafile"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 
 @app.route("/")
@@ -27,10 +32,27 @@ def home():
     )
 
 
-@app.route("/upload", methods=["POST"])
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route("/upload", methods=["GET", "POST"])
 @cross_origin()
 def upload():
-    return "Upload POST"
+    if request.method == "POST":
+        if "file" not in request.files:
+            # flash('No file part')
+            return "No file part"
+        file = request.files["file"]
+        # IF USER DOES NOT SELECT FILE, BROWSER ALSO
+        # SUBMIT AN EMPTY PART WITHOUT FILENAME
+        if file.filename == "":
+            return "No selected file"
+        if file and allowed_file(file.filename):
+            ext = request.args.get("ext")
+            filename = f"dataFile.{ext}"
+            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            return "Uploaded file"
 
 
 @app.route("/predict", methods=["POST"])
@@ -40,11 +62,9 @@ def predict():
     json_data = request.get_json()
     ext = json_data["ext"]
     field = json_data["field"]
-    fileb64 = json_data["file"]
     filtering = json_data["filter"]
     sep = json_data["sep"]
     title = json_data["title"]
-    saveDataFile(fileb64, ext)
     res = getPredict(field, filtering, ext, sep, title)
     graph = uploadImage("prediction.jpg")
     return jsonify(
@@ -77,11 +97,9 @@ def trend():
     json_data = request.get_json()
     ext = json_data["ext"]
     field = json_data["field"]
-    fileb64 = json_data["file"]
     filtering = json_data["filter"]
     sep = json_data["sep"]
     title = json_data["title"]
-    saveDataFile(fileb64, ext)
     res = getTrend(field, filtering, ext, sep, title)
     graph = uploadImage("tendencia.jpg")
     return jsonify(
@@ -114,11 +132,9 @@ def percentage():
     json_data = request.get_json()
     ext = json_data["ext"]
     field = json_data["field"]
-    fileb64 = json_data["file"]
     filtering = json_data["filter"]
     sep = json_data["sep"]
     title = json_data["title"]
-    saveDataFile(fileb64, ext)
     res = getPercentage(field, filtering, ext, sep, title)
     graph = uploadImage("percentage.jpg")
     return jsonify(
@@ -152,11 +168,9 @@ def rate():
     json_data = request.get_json()
     ext = json_data["ext"]
     field = json_data["field"]
-    fileb64 = json_data["file"]
     filtering = json_data["filter"]
     sep = json_data["sep"]
     title = json_data["title"]
-    saveDataFile(fileb64, ext)
     res = getRate(field, filtering, ext, sep, title)
     graph = uploadImage("rate.jpg")
     return jsonify(
@@ -190,11 +204,9 @@ def analysis():
     json_data = request.get_json()
     ext = json_data["ext"]
     field = json_data["field"]
-    fileb64 = json_data["file"]
     filtering = json_data["filter"]
     sep = json_data["sep"]
     title = json_data["title"]
-    saveDataFile(fileb64, ext)
     res = getAnalysis(field, filtering, ext, sep, title)
     graph = uploadImage("analysis.jpg")
     return jsonify(
@@ -222,5 +234,5 @@ def analysis():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="8080")
-    # app.run(debug=True)
+    # app.run(host="0.0.0.0", port="8080")
+    app.run(debug=True)
