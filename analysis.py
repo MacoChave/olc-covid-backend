@@ -19,13 +19,13 @@ def getAnalysis(fields, filtering, ext, sep, title) -> list:
     else:
         df = pd.read_excel("dataFile.xlsx")
 
+    df.fillna(0)
+
     continentColumn = ""
     countryColumn = ""
-    dateColumn = ""
-    totalColumn = ""
-    confirmColumn = ""
     deathColumn = ""
-    recoveryColumn = ""
+    dateColumn = ""
+    vaccineColumn = ""
 
     # GET COLUMN NAMES
     for item in fields:
@@ -33,16 +33,12 @@ def getAnalysis(fields, filtering, ext, sep, title) -> list:
             continentColumn = item["match"]
         if item["require"] == "Pais":
             countryColumn = item["match"]
-        if item["require"] == "Fecha":
-            dateColumn = item["match"]
-        if item["require"] == "Total":
-            totalColumn = item["match"]
-        if item["require"] == "Confirmados":
-            confirmColumn = item["match"]
         if item["require"] == "Muertes":
             deathColumn = item["match"]
-        if item["require"] == "Recuperados":
-            recoveryColumn = item["match"]
+        if item["require"] == "Fecha":
+            dateColumn = item["match"]
+        if item["require"] == "Vacunas":
+            vaccineColumn = item["match"]
 
     # CREATE YEAR, MONTH COLUMNS FROM DATE COLUMN
     # dateRow = df.iloc[0][dateColumn]
@@ -50,10 +46,7 @@ def getAnalysis(fields, filtering, ext, sep, title) -> list:
     df["Year"] = df["JoinedDate"].dt.year
     df["Month"] = df["JoinedDate"].dt.month
 
-    if (
-        title
-        == "Tasa de comportamiento de casos activos en relación al número de muertes en un continente"
-    ):
+    if title == "Análisis del número de muertes por coronavirus en un País":
         continentField = ""
         for filt in filtering:
             if filt["key"] == "Continente":
@@ -71,14 +64,11 @@ def getAnalysis(fields, filtering, ext, sep, title) -> list:
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_x["Tasa"],
-            f"Tasa de crecimiento de casos activos en relación al númeor de muertes en {continentField}",
+            f"Análisis del número de muertes por coronavirus en {countryColumn}",
             "Infectados",
         )
         return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
-    elif (
-        title
-        == "Tasa de crecimiento de casos en relación con nuevos casos diarios y tasa de muerte"
-    ):
+    elif title == "Análisis del número de muertes por coronavirus en un País":
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_x["Days"] = np.arange(len(df_x))
@@ -91,11 +81,11 @@ def getAnalysis(fields, filtering, ext, sep, title) -> list:
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_x["Tasa"],
-            f"Tasa de crecimiento de casos en relación de casos diarios y tasa de muerte",
+            f"Ánalisis Comparativo entres 2 o más paises o continentes",
             "Infectados",
         )
         return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
-    else:  # Tasa de mortalidad por coronavirus (COVID-19) en un país
+    else:  # Ánalisis Comparativo entres 2 o más paises o continentes
         continentField = ""
         for filt in filtering:
             if filt["key"] == "Pais":

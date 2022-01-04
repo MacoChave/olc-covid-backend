@@ -8,7 +8,7 @@ with open("credentials.json", "r") as creds:
 
 ACCESS_KEY = json.loads(data)["ACCESS_KEY"]
 SECRET_KEY = json.loads(data)["SECRET_KEY"]
-BUCKET = json.loads(data)["BUCKET"]
+BUCKET = "res-covid19-olc"
 
 
 def saveDataFile(fileb64: str, ext: str):

@@ -55,6 +55,18 @@ def upload():
             return "Uploaded file"
 
 
+@app.route("/uploadChunks", methods=["POST"])
+@cross_origin()
+def uploadChunk():
+    return "upload init"
+
+
+@app.route("/uploadComplete", methods=["GET"])
+@cross_origin()
+def uploadComplete():
+    return "upload complete"
+
+
 @app.route("/predict", methods=["POST"])
 @cross_origin()
 def predict():
