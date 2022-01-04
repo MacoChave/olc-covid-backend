@@ -36,113 +36,113 @@ def upload():
 @app.route("/predict", methods=["POST"])
 @cross_origin()
 def predict():
-    try:
-        json_data = request.get_json()
-        ext = json_data["ext"]
-        field = json_data["field"]
-        fileb64 = json_data["file"]
-        filtering = json_data["filter"]
-        sep = json_data["sep"]
-        title = json_data["title"]
-        saveDataFile(fileb64, ext)
-        res = getPredict(field, filtering, ext, sep, title)
-        graph = uploadImage("prediction.jpg")
-        return jsonify(
-            {
-                "RMSE": res[0],
-                "r^2": res[1],
-                "Ecuacion": res[2],
-                "Intercepto": res[3],
-                "Predecir": res[4],
-                "Grafica": graph,
-            }
-        )
-    except:
-        return jsonify(
-            {
-                "RMSE": "",
-                "r^2": "",
-                "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
-                "Intercepto": "",
-                "Predecir": "",
-                "Grafica": "",
-            }
-        )
+    # try:
+    json_data = request.get_json()
+    ext = json_data["ext"]
+    field = json_data["field"]
+    fileb64 = json_data["file"]
+    filtering = json_data["filter"]
+    sep = json_data["sep"]
+    title = json_data["title"]
+    saveDataFile(fileb64, ext)
+    res = getPredict(field, filtering, ext, sep, title)
+    graph = uploadImage("prediction.jpg")
+    return jsonify(
+        {
+            "RMSE": res[0],
+            "r^2": res[1],
+            "Ecuacion": res[2],
+            "Intercepto": res[3],
+            "Predecir": res[4],
+            "Grafica": graph,
+        }
+    )
+    # except:
+    #     return jsonify(
+    #         {
+    #             "RMSE": "",
+    #             "r^2": "",
+    #             "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
+    #             "Intercepto": "",
+    #             "Predecir": "",
+    #             "Grafica": "",
+    #         }
+    #     )
 
 
 @app.route("/trend", methods=["POST"])
 @cross_origin()
 def trend():
-    try:
-        json_data = request.get_json()
-        ext = json_data["ext"]
-        field = json_data["field"]
-        fileb64 = json_data["file"]
-        filtering = json_data["filter"]
-        sep = json_data["sep"]
-        title = json_data["title"]
-        saveDataFile(fileb64, ext)
-        res = getTrend(field, filtering, ext, sep, title)
-        graph = uploadImage("tendencia.jpg")
-        return jsonify(
-            {
-                "RMSE": res[0],
-                "r^2": res[1],
-                "Ecuacion": res[2],
-                "Intercepto": res[3],
-                "Coeficiente": res[4],
-                "Grafica": graph,
-            }
-        )
-    except:
-        return jsonify(
-            {
-                "RMSE": "",
-                "r^2": "",
-                "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
-                "Intercepto": "",
-                "Predecir": "",
-                "Grafica": "",
-            }
-        )
+    # try:
+    json_data = request.get_json()
+    ext = json_data["ext"]
+    field = json_data["field"]
+    fileb64 = json_data["file"]
+    filtering = json_data["filter"]
+    sep = json_data["sep"]
+    title = json_data["title"]
+    saveDataFile(fileb64, ext)
+    res = getTrend(field, filtering, ext, sep, title)
+    graph = uploadImage("tendencia.jpg")
+    return jsonify(
+        {
+            "RMSE": res[0],
+            "r^2": res[1],
+            "Ecuacion": res[2],
+            "Intercepto": res[3],
+            "Coeficiente": res[4],
+            "Grafica": graph,
+        }
+    )
+    # except:
+    #     return jsonify(
+    #         {
+    #             "RMSE": "",
+    #             "r^2": "",
+    #             "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
+    #             "Intercepto": "",
+    #             "Predecir": "",
+    #             "Grafica": "",
+    #         }
+    #     )
 
 
 @app.route("/percentage", methods=["POST"])
 @cross_origin()
 def percentage():
-    try:
-        json_data = request.get_json()
-        ext = json_data["ext"]
-        field = json_data["field"]
-        fileb64 = json_data["file"]
-        filtering = json_data["filter"]
-        sep = json_data["sep"]
-        title = json_data["title"]
-        saveDataFile(fileb64, ext)
-        res = getPercentage(field, filtering, ext, sep, title)
-        graph = uploadImage("percentage.jpg")
-        return jsonify(
-            {
-                "RMSE": res[0],
-                "r^2": res[1],
-                "Ecuacion": res[2],
-                "Intercepto": res[3],
-                "Coeficiente": res[4],
-                "Grafica": graph,
-                "Porcentaje": res[5],
-            }
-        )
-    except:
-        return jsonify(
-            {
-                "RMSE": "",
-                "r^2": "",
-                "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
-                "Intercepto": "",
-                "Predecir": "",
-                "Grafica": "",
-            }
-        )
+    # try:
+    json_data = request.get_json()
+    ext = json_data["ext"]
+    field = json_data["field"]
+    fileb64 = json_data["file"]
+    filtering = json_data["filter"]
+    sep = json_data["sep"]
+    title = json_data["title"]
+    saveDataFile(fileb64, ext)
+    res = getPercentage(field, filtering, ext, sep, title)
+    graph = uploadImage("percentage.jpg")
+    return jsonify(
+        {
+            "RMSE": res[0],
+            "r^2": res[1],
+            "Ecuacion": res[2],
+            "Intercepto": res[3],
+            "Coeficiente": res[4],
+            "Grafica": graph,
+            "Porcentaje": res[5],
+        }
+    )
+    # except:
+    #     return jsonify(
+    #         {
+    #             "RMSE": "",
+    #             "r^2": "",
+    #             "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
+    #             "Intercepto": "",
+    #             "Predecir": "",
+    #             "Grafica": "",
+    #         }
+    #     )
 
 
 @app.route("/rate", methods=["POST"])
