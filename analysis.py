@@ -1,4 +1,4 @@
-import numpy as np
+analysis.pyimport numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -9,7 +9,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
 
 
-def getRate(fields, filtering, ext, sep, title) -> list:
+def getAnalysis(fields, filtering, ext, sep, title) -> list:
     df = None
 
     if ext == "csv":
@@ -164,3 +164,4 @@ def predict(x, y, title: str, y_label: str) -> list:
     equation = f"y =  {coef[-1]} b + {intercept}"
 
     return [rmse, r2, equation, intercept, coef[-1]]
+
