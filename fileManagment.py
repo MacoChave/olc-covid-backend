@@ -2,9 +2,12 @@ import base64
 import boto3
 from botocore.exceptions import NoCredentialsError
 
-ACCESS_KEY = "ACCESS_KEY"
-SECRET_KEY = "SECRET_KEY"
-BUCKET = "res-covid19-olc"
+with open("credentials.json", "r") as creds:
+    data = creds.read()
+
+ACCESS_KEY = json.loads(data)["ACCESS_KEY"]
+SECRET_KEY = json.loads(data)["SECRET_KEY"]
+BUCKET = json.loads(data)["BUCKET"]
 
 
 def saveDataFile(fileb64: str, ext: str):
