@@ -1,12 +1,16 @@
+from app import FILENAME
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from pandas.core.frame import DataFrame
 from colors import colors
+from pdf import genPDF
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
+
+IMAGENAME = "./reporte/percentage.jpg"
 
 
 def getPercentage(fields, filtering, ext, sep, title) -> list:
@@ -91,6 +95,8 @@ def getPercentage(fields, filtering, ext, sep, title) -> list:
         writeDescriptionReport(genreColumn, confirmColumn)
         writeDatosReport(pre)
         writeConclusionReport(pre, percent)
+
+        genPDF(title, IMAGENAME)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], percent]
     else:  # Porcentaje de muertes frente al total de casos en un país, región o continente
         countryField = ""
@@ -139,6 +145,8 @@ def getPercentage(fields, filtering, ext, sep, title) -> list:
         writeDescriptionReport(genreColumn, confirmColumn)
         writeDatosReport(pre)
         writeConclusionReport(pre, percent)
+
+        genPDF(title, IMAGENAME)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], percent]
 
 
@@ -178,7 +186,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("./reporte/percentage.jpg")
+    plt.savefig(FILENAME)
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)

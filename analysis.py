@@ -1,12 +1,16 @@
+from app import FILENAME
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from pandas.core.frame import DataFrame
 from colors import colors
+from pdf import genPDF
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
+
+IMAGENAME = "./reporte/analysis.jpg"
 
 
 def getAnalysis(fields, filtering, ext, sep, title):
@@ -73,7 +77,7 @@ def getAnalysis(fields, filtering, ext, sep, title):
                 "coef": pre[4],
             }
         ]
-
+        genPDF(title, FILENAME)
         return result
     elif title == "Ánalisis Comparativo de Vacunación entre 2 paises":
         countryField1 = ""
@@ -108,7 +112,7 @@ def getAnalysis(fields, filtering, ext, sep, title):
 
         genGraph([pre1[5], pre2[5]])
         result = [{countryField1: pre1}, {countryField2: pre2}]
-
+        genPDF(title, pre1)
         return result
     else:  # Ánalisis Comparativo entres 2 o más paises o continentes
         countryField = ""
@@ -196,4 +200,4 @@ def genGraph(datas: list):
     plt.title("Analisis comparativo de vacunación entre 2 países")
     plt.xlabel("Días")
     plt.ylabel("Vacunación")
-    plt.savefig("./reporte/analysis.jpg")
+    plt.savefig(FILENAME)

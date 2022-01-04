@@ -1,12 +1,16 @@
+from app import FILENAME
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from pandas.core.frame import DataFrame
 from colors import colors
+from pdf import genPDF
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
+
+IMAGENAME = "./reporte/rate.jpg"
 
 
 def getRate(fields, filtering, ext, sep, title) -> list:
@@ -77,6 +81,8 @@ def getRate(fields, filtering, ext, sep, title) -> list:
             f"Tasa de crecimiento de casos activos en relación al númeor de muertes en {countryField}",
             "Infectados",
         )
+
+        genPDF(title, IMAGENAME)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], f"{tasa} / {total}"]
     elif (
         title
@@ -98,6 +104,8 @@ def getRate(fields, filtering, ext, sep, title) -> list:
             f"Tasa de crecimiento de casos en relación de casos diarios y tasa de muerte",
             "Infectados",
         )
+
+        genPDF(title, IMAGENAME)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], f"{tasa} / {total}"]
     else:  # Tasa de mortalidad por coronavirus (COVID-19) en un país
         countryField = ""
@@ -121,6 +129,8 @@ def getRate(fields, filtering, ext, sep, title) -> list:
             f"Tasa de mortalidad en {countryField}",
             "Muertes",
         )
+
+        genPDF(title, IMAGENAME)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], f"{tasa} / {total}"]
 
 
@@ -160,7 +170,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("./reporte/rate.jpg")
+    plt.savefig(FILENAME)
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)

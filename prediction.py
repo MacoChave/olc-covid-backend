@@ -1,3 +1,4 @@
+from app import FILENAME
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -300,7 +301,7 @@ def predict(x, y, daysPredicted: int, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Dias")
     plt.ylabel(y_label)
-    plt.savefig("./reporte/prediction.jpg")
+    plt.savefig(FILENAME)
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)

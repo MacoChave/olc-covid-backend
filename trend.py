@@ -1,12 +1,16 @@
+from app import FILENAME
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from pandas.core.frame import DataFrame
 from colors import colors
+from pdf import genPDF
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
+
+IMAGENAME = "./reporte/tendencia.jpg"
 
 
 def getTrend(fields, filtering, ext, sep, title) -> list:
@@ -66,6 +70,8 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
         writeDescriptionReport()
         writeDatosReport(pre)
         writeConclusionReport(pre)
+
+        genPDF(title, IMAGENAME)
         return pre
     elif title == "Tendencia del número de infectados por día de un País":
         countryField = ""
@@ -87,6 +93,8 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
         writeDescriptionReport()
         writeDatosReport(pre)
         writeConclusionReport(pre)
+
+        genPDF(title, IMAGENAME)
         return pre
     elif title == "Tendencia de la vacunación de un País":
         countryField = ""
@@ -108,6 +116,8 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
         writeDescriptionReport()
         writeDatosReport(pre)
         writeConclusionReport(pre)
+
+        genPDF(title, IMAGENAME)
         return pre
     else:  # "Tendencia de casos confirmados de Coronavirus en un departamento de un País"
         countryField = ""
@@ -133,6 +143,8 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
         writeDescriptionReport()
         writeDatosReport(pre)
         writeConclusionReport(pre)
+
+        genPDF(title, IMAGENAME)
         return pre
 
 
@@ -172,7 +184,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("./reporte/tendencia.jpg")
+    plt.savefig(FILENAME)
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
