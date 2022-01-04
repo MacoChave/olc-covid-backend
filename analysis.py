@@ -1,4 +1,4 @@
-analysis.pyimport numpy as np
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -164,4 +164,3 @@ def predict(x, y, title: str, y_label: str) -> list:
     equation = f"y =  {coef[-1]} b + {intercept}"
 
     return [rmse, r2, equation, intercept, coef[-1]]
-
