@@ -9,7 +9,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error, r2_score
 
 
-def getAnalysis(fields, filtering, ext, sep, title) -> list[dict[str, list]]:
+def getAnalysis(fields, filtering, ext, sep, title):
     df = None
 
     if ext == "csv":
