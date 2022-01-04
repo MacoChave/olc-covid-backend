@@ -66,6 +66,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
 
         df_x["Tasa"] = df_x[confirmColumn] - df_x[deathColumn]
 
+        total = df_x[confirmColumn].sum()
         tasa = df_x[confirmColumn].sum() - df_x[deathColumn].sum()
 
         pre = predict(
@@ -74,7 +75,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
             f"Tasa de crecimiento de casos activos en relación al númeor de muertes en {countryField}",
             "Infectados",
         )
-        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
+        return [pre[0], pre[1], pre[2], pre[3], pre[4], f"{tasa} / {total}"]
     elif (
         title
         == "Tasa de crecimiento de casos en relación con nuevos casos diarios y tasa de muerte"
@@ -85,6 +86,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
 
         df_x["Tasa"] = df_x[confirmColumn] - df_x[deathColumn] - df_x[recoveryColumn]
 
+        total = df_x[confirmColumn].sum()
         tasa = df_x[confirmColumn].sum() - df_x[deathColumn].sum()
         tasa = tasa - df_x[recoveryColumn].sum()
 
@@ -94,7 +96,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
             f"Tasa de crecimiento de casos en relación de casos diarios y tasa de muerte",
             "Infectados",
         )
-        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
+        return [pre[0], pre[1], pre[2], pre[3], pre[4], f"{tasa} / {total}"]
     else:  # Tasa de mortalidad por coronavirus (COVID-19) en un país
         countryField = ""
         for filt in filtering:
@@ -108,6 +110,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
 
         df_x["Tasa"] = df_x[totalColumn] - df_x[deathColumn]
 
+        total = df_x[totalColumn].sum()
         tasa = df_x[totalColumn].sum() - df_x[deathColumn].sum()
 
         pre = predict(
@@ -116,7 +119,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
             f"Tasa de mortalidad en {countryField}",
             "Muertes",
         )
-        return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
+        return [pre[0], pre[1], pre[2], pre[3], pre[4], f"{tasa} / {total}"]
 
 
 def filterRows(dataFrame: DataFrame, columnName: str, rowName: str) -> DataFrame:
