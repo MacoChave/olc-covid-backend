@@ -220,7 +220,7 @@ def analysis():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getAnalysis(field, filtering, ext, sep, title)
-    # graph = uploadImage("analysis.jpg")
+    graph = uploadImage("analysis.jpg")
 
     return jsonify({"Grafica": graph, "Array": res})
     # except:
