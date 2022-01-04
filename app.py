@@ -78,7 +78,7 @@ def predict():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getPredict(field, filtering, ext, sep, title)
-    # graph = uploadImage("prediction.jpg")
+    graph = uploadImage("prediction.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -86,7 +86,7 @@ def predict():
             "Ecuacion": res[2],
             "Intercepto": res[3],
             "Predecir": res[4],
-            "Grafica": "graph",
+            "Grafica": graph,
         }
     )
     # except:
@@ -113,7 +113,7 @@ def trend():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getTrend(field, filtering, ext, sep, title)
-    # graph = uploadImage("tendencia.jpg")
+    graph = uploadImage("tendencia.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -121,7 +121,7 @@ def trend():
             "Ecuacion": res[2],
             "Intercepto": res[3],
             "Coeficiente": res[4],
-            "Grafica": "graph",
+            "Grafica": graph,
         }
     )
     # except:
@@ -148,7 +148,7 @@ def percentage():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getPercentage(field, filtering, ext, sep, title)
-    # graph = uploadImage("percentage.jpg")
+    graph = uploadImage("percentage.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -156,7 +156,7 @@ def percentage():
             "Ecuacion": res[2],
             "Intercepto": res[3],
             "Coeficiente": res[4],
-            "Grafica": "graph",
+            "Grafica": graph,
             "Porcentaje": res[5],
         }
     )
@@ -184,7 +184,7 @@ def rate():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getRate(field, filtering, ext, sep, title)
-    # graph = uploadImage("rate.jpg")
+    graph = uploadImage("rate.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -192,7 +192,7 @@ def rate():
             "Ecuacion": res[2],
             "Intercepto": res[3],
             "Coeficiente": res[4],
-            "Grafica": "graph",
+            "Grafica": graph,
             "Tasa": f"{res[5]}",
         }
     )
@@ -220,7 +220,7 @@ def analysis():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getAnalysis(field, filtering, ext, sep, title)
-    graph = uploadImage("analysis.jpg")
+    # graph = uploadImage("analysis.jpg")
 
     return jsonify({"Grafica": graph, "Array": res})
     # except:

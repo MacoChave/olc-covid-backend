@@ -147,3 +147,4 @@ cython_debug/
 credentials.json
 dataFile.*
 *.jpg
+credentials.json
