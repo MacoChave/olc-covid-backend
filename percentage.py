@@ -64,6 +64,8 @@ def getPercentage(fields, filtering, ext, sep, title) -> list:
 
         df = filterRows(df, countryColumn, countryField)
 
+        df = df.loc[df[confirmColumn] != 0, :]
+
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_y = df_ready[1]

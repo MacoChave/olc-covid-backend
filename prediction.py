@@ -57,6 +57,7 @@ def getPredict(fields, filtering, ext, sep, title) -> list:
         df_x = df_ready[0]
         df_y = df_ready[1]
         df_x["Days"] = np.arange(len(df))
+        print(df_x)
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_y[confirmColumn],
