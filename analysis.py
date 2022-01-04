@@ -166,7 +166,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("analysis.jpg")
+    plt.savefig("./reporte/analysis.jpg")
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
@@ -196,4 +196,4 @@ def genGraph(datas: list):
     plt.title("Analisis comparativo de vacunación entre 2 países")
     plt.xlabel("Días")
     plt.ylabel("Vacunación")
-    plt.savefig("analysis.jpg")
+    plt.savefig("./reporte/analysis.jpg")

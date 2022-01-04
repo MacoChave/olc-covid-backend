@@ -1,0 +1,6 @@
+ Los datos recabados con el analisis son los siguientes:
+  - El indice RMSE obtenido es: 1397.6512432936142
+  - El r^2 obtenido es: 0.9038070630637954
+  - El punto de corte es: 2413.472045455859
+  - El coeficiente es: [   0.         -143.68353566    1.35424837]
+  - La ecuacion obtenida es: y =  1.354248374588991 x^2 + -143.68353565543146 x + 2413.472045455859

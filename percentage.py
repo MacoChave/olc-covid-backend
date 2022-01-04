@@ -87,6 +87,10 @@ def getPercentage(fields, filtering, ext, sep, title) -> list:
             f"Porcentaje de hombres infectados en {countryField} desde el 1er caso",
             "Infectados",
         )
+
+        writeDescriptionReport(genreColumn, confirmColumn)
+        writeDatosReport(pre)
+        writeConclusionReport(pre, percent)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], percent]
     else:  # Porcentaje de muertes frente al total de casos en un país, región o continente
         countryField = ""
@@ -131,6 +135,10 @@ def getPercentage(fields, filtering, ext, sep, title) -> list:
             f"Porcentaje de muertes sobre el total de casos en {lugar}",
             "Muertes",
         )
+
+        writeDescriptionReport(genreColumn, confirmColumn)
+        writeDatosReport(pre)
+        writeConclusionReport(pre, percent)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], percent]
 
 
@@ -170,7 +178,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("percentage.jpg")
+    plt.savefig("./reporte/percentage.jpg")
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
@@ -179,3 +187,52 @@ def predict(x, y, title: str, y_label: str) -> list:
     equation = f"y =  {coef[-1]} b + {intercept}"
 
     return [rmse, r2, equation, intercept, coef[-1]]
+
+
+def writeDescriptionReport(individual, total):
+    f = open("./reporte/des.txt", "w")
+    f.write(
+        """ Para completar el analisis para encontrar el porcentaje solicitado, primero se debio conocer el total de casos para poder dar el porcentaje del caso solicitado para cada fila a partir de los datos recabados por medio del archivo de carga masiva.\n"""
+    )
+    f.write(
+        """Para llegar a un resultado satisfactorio, se procedió a seguir los siguientes pasos:\n"""
+    )
+    f.write(
+        """ 1. Leer el archivo de entrada
+    2. Rellenar los campos nulos con el elemento neutro, osea, ceros, esto para no ocacionar problemas durante el proceso
+    3. Hacer coincidir las columnas del archivo de entrada
+    4. Configurar el campo fecha del archivo de entrada
+    5. Limpiar las filas por el país solicitado
+    6. Separar la fecha por día, mes y año"""
+    )
+    f.write(
+        f"  7. El porcentaje para cada fila, se obtuvo de la siguiente operación: {individual} * 100 / {total}"
+    )
+    f.write("   8. Se realizo lo mismo para el total de ambas columnas")
+    f.write(
+        """Completado los pasos anteriores, se procedio a generar los gráficos pertinentes para demostrar los resultados teoricos obtenidos despues del analisis"""
+    )
+    f.close()
+
+
+def writeDatosReport(res):
+    f = open("./reporte/datos.txt", "w")
+    f.write(""" Los datos recabados con el analisis son los siguientes:\n""")
+    f.write(f"  - El indice RMSE obtenido es: {res[0]}\n")
+    f.write(f"  - El r^2 obtenido es: {res[1]}\n")
+    f.write(f"  - El punto de corte es: {res[3]}\n")
+    f.write(f"  - El coeficiente es: {res[4]}\n")
+    f.write(f"  - La ecuacion obtenida es: {res[2]}\n")
+    f.close()
+
+
+def writeConclusionReport(res, percent):
+    f = open("./reporte/conc.txt", "w")
+    f.write(""" Terminado el análisis, se llegaron a las siguientes concluciones:\n""")
+    f.write(
+        f"La ecuacion que describe el comportamiento del porcentaje solicitado es: {res[2]}. Por lo que se observa se puede estimar los casos para un día futuro con dicha ecuación. La ecuación fue obtenida a partir de una regresión de grado 2.\n"
+    )
+    f.write(
+        f"Pero, tambien obtenemos el porcentaje total obtenido, siendo de {percent}"
+    )
+    f.close()

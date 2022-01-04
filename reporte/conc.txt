@@ -1,0 +1,2 @@
+ Terminado el analisis, se llegaron a las siguientes concluciones:
+La ecuacion que describe el comportamiento para 300 dias es : 81190.76506183561. Por lo que se observa se puede estimar los casos para un dia futuro con dicha ecuacion. La ecuacion fue obtenida a partir de una regresion de grado 2.

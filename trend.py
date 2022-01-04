@@ -63,6 +63,9 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             f"Tendencia de infectados en {countryField}",
             "Infectados",
         )
+        writeDescriptionReport()
+        writeDatosReport(pre)
+        writeConclusionReport(pre)
         return pre
     elif title == "Tendencia del número de infectados por día de un País":
         countryField = ""
@@ -81,6 +84,9 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             f"Tendencia de infectados en {countryField}",
             "Infectados",
         )
+        writeDescriptionReport()
+        writeDatosReport(pre)
+        writeConclusionReport(pre)
         return pre
     elif title == "Tendencia de la vacunación de un País":
         countryField = ""
@@ -99,6 +105,9 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             f"Tendencia de vacunación en {countryField}",
             "Vacunación",
         )
+        writeDescriptionReport()
+        writeDatosReport(pre)
+        writeConclusionReport(pre)
         return pre
     else:  # "Tendencia de casos confirmados de Coronavirus en un departamento de un País"
         countryField = ""
@@ -121,6 +130,9 @@ def getTrend(fields, filtering, ext, sep, title) -> list:
             f"Tendencia de casos confirmados en {deptoField}, {countryField}",
             "Confirmados",
         )
+        writeDescriptionReport()
+        writeDatosReport(pre)
+        writeConclusionReport(pre)
         return pre
 
 
@@ -160,7 +172,7 @@ def predict(x, y, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Días")
     plt.ylabel(y_label)
-    plt.savefig("tendencia.jpg")
+    plt.savefig("./reporte/tendencia.jpg")
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
@@ -169,3 +181,57 @@ def predict(x, y, title: str, y_label: str) -> list:
     equation = f"y =  {coef[-1]} b + {intercept}"
 
     return [rmse, r2, equation, intercept, coef[-1]]
+
+
+def writeDescriptionReport():
+    f = open("./reporte/des.txt", "w")
+    f.write(
+        """ Para completar el analisis para encontrar la tendencia solicitada, primero se debio conocer todos los casos con sus respectivos días para poder dar la tendencia de los datos para del caso solicitado a partir de los datos recabados por medio del archivo de carga masiva.\n"""
+    )
+    f.write(
+        """Para llegar a un resultado satisfactorio, se procedió a seguir los siguientes pasos:\n"""
+    )
+    f.write(
+        """\t1. Leer el archivo de entrada
+\t2. Rellenar los campos nulos con el elemento neutro, osea, ceros, esto para no ocacionar problemas durante el proceso
+\t3. Hacer coincidir las columnas del archivo de entrada
+\t4. Configurar el campo fecha del archivo de entrada
+\t5. Limpiar las filas por el país solicitado
+\t6. Separar la fecha por día, mes y año\n"""
+    )
+    f.write(
+        f"\t7. Con la tendencia se podra observar si los datos siguen un comportamiento alcista o bajista, es decir, si los casos van aumentando o bajando.\n"
+    )
+    f.write("\t8. Se realizo lo mismo para el total de ambas columnas\n")
+    f.write(
+        """Completado los pasos anteriores, se procedio a generar los graficos pertinentes para demostrar los resultados teoricos obtenidos despues del analisis\n"""
+    )
+    f.close()
+
+
+def writeDatosReport(res):
+    f = open("./reporte/datos.txt", "w")
+    f.write(""" Los datos recabados con el analisis son los siguientes:\n""")
+    f.write(f"  - El indice RMSE obtenido es: {res[0]}\n")
+    f.write(f"  - El r^2 obtenido es: {res[1]}\n")
+    f.write(f"  - El punto de corte es: {res[3]}\n")
+    f.write(f"  - El coeficiente es: {res[4]}\n")
+    f.write(f"  - La ecuacion obtenida es: {res[2]}\n")
+    f.close()
+
+
+def writeConclusionReport(res):
+    f = open("./reporte/conc.txt", "w")
+    f.write(""" Terminado el analisis, se llegaron a las siguientes concluciones:\n""")
+    if res[4] > 0:
+        f.write(
+            f"Nos damos cuenta que el coeficiete es {res[4]} observando que los datos siguen un comportamiento alcista con los datos de muestra tomados. Por lo que podemos asegurar que estan aumentando los casos en estudio"
+        )
+    else:
+        f.write(
+            f"Nos damos cuenta que el coeficiete es {res[4]} observando que los datos siguen un comportamiento bajista con los datos de muestra tomados. Por lo que podemos asegurar que estan disminuyendo los casos en estudio"
+        )
+    f.write(
+        f"La ecuacion que describe el comportamiento del porcentaje solicitado es: {res[2]}. Por lo que se observa se puede estimar los casos para un día futuro con dicha ecuación. La ecuación fue obtenida a partir de una regresión de grado 2.\n"
+    )
+    f.close()

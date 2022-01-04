@@ -1,0 +1,8 @@
+ Para completar el analisis de prediccion solicitado, primero se debio conocer un dia futuro para predecir el caso solicitado en ese punto a partir de los datos recabados por medio del archivo de carga masiva.
+Para llegar a un resultado satisfactorio, se procedio a seguir los siguientes pasos:
+ 1. Leer el archivo de entrada
+    2. Rellenar los campos nulos con el elemento neutro, osea, ceros, esto para no ocacionar problemas durante el proceso
+    3. Hacer coincidir las columnas del archivo de entrada
+    4. Configurar el campo fecha del archivo de entrada
+    5. Limpiar las filas por el pais solicitado
+    6. Separar la fecha por dia, mes y año 7. Prediccion de la moralidad para 300 diasCompletado los pasos anteriores, se procedio a generar los graficos pertinentes para demostrar los resultados teoricos obtenidos despues del analisis

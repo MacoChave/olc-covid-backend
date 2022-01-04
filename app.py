@@ -3,6 +3,7 @@ from analysis import getAnalysis
 from fileManagment import saveDataFile, uploadImage
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+from muertes import getDeaths
 from percentage import getPercentage
 
 from prediction import getPredict
@@ -61,6 +62,13 @@ def uploadChunk():
     return jsonify({"isSuccess": True})
 
 
+@app.route("/reporte", methods=["GET"])
+@cross_origin()
+def reporte():
+    res = uploadImage("./reporte/201020831_reporte.pdf")
+    return jsonify({"isSuccess": True, 'link': res})
+
+
 @app.route("/uploadComplete", methods=["GET"])
 @cross_origin()
 def uploadComplete():
@@ -78,7 +86,7 @@ def predict():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getPredict(field, filtering, ext, sep, title)
-    graph = uploadImage("prediction.jpg")
+    graph = uploadImage("./reporte/prediction.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -113,7 +121,7 @@ def trend():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getTrend(field, filtering, ext, sep, title)
-    graph = uploadImage("tendencia.jpg")
+    graph = uploadImage("./reporte/tendencia.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -148,7 +156,7 @@ def percentage():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getPercentage(field, filtering, ext, sep, title)
-    graph = uploadImage("percentage.jpg")
+    graph = uploadImage("./reporte/percentage.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -184,7 +192,7 @@ def rate():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getRate(field, filtering, ext, sep, title)
-    graph = uploadImage("rate.jpg")
+    graph = uploadImage("./reporte/rate.jpg")
     return jsonify(
         {
             "RMSE": res[0],
@@ -220,7 +228,34 @@ def analysis():
     sep = json_data["sep"]
     title = json_data["title"]
     res = getAnalysis(field, filtering, ext, sep, title)
-    graph = uploadImage("analysis.jpg")
+    graph = uploadImage("./reporte/analysis.jpg")
+
+    return jsonify({"Grafica": graph, "Array": res})
+    # except:
+    #     return jsonify(
+    #         {
+    #             "RMSE": "",
+    #             "r^2": "",
+    #             "Ecuacion": "Tuvimos problemas técnicos para procesar el análisis. ¿Los datos están correctos?",
+    #             "Intercepto": "",
+    #             "Predecir": "",
+    #             "Grafica": "",
+    #         }
+    #     )
+
+
+@app.route("/deaths", methods=["POST"])
+@cross_origin()
+def deaths():
+    # try:
+    json_data = request.get_json()
+    ext = json_data["ext"]
+    field = json_data["field"]
+    filtering = json_data["filter"]
+    sep = json_data["sep"]
+    title = json_data["title"]
+    res = getDeaths(field, filtering, ext, sep, title)
+    graph = uploadImage("./reporte/deaths.jpg")
 
     return jsonify({"Grafica": graph, "Array": res})
     # except:
