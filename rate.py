@@ -54,12 +54,12 @@ def getRate(fields, filtering, ext, sep, title) -> list:
         title
         == "Tasa de comportamiento de casos activos en relación al número de muertes en un continente"
     ):
-        continentField = ""
+        countryField = ""
         for filt in filtering:
             if filt["key"] == "Continente":
-                continentField = filt["value"]
+                countryField = filt["value"]
 
-        df = filterRows(df, continentColumn, continentField)
+        df = filterRows(df, continentColumn, countryField)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_x["Days"] = np.arange(len(df))
@@ -71,7 +71,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_x["Tasa"],
-            f"Tasa de crecimiento de casos activos en relación al númeor de muertes en {continentField}",
+            f"Tasa de crecimiento de casos activos en relación al númeor de muertes en {countryField}",
             "Infectados",
         )
         return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
@@ -96,12 +96,12 @@ def getRate(fields, filtering, ext, sep, title) -> list:
         )
         return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
     else:  # Tasa de mortalidad por coronavirus (COVID-19) en un país
-        continentField = ""
+        countryField = ""
         for filt in filtering:
             if filt["key"] == "Pais":
-                continentField = filt["value"]
+                countryField = filt["value"]
 
-        df = filterRows(df, countryColumn, countryColumn)
+        df = filterRows(df, countryColumn, countryField)
         df_ready = cleanRows(df, dateColumn)
         df_x = df_ready[0]
         df_x["Days"] = np.arange(len(df_x))
@@ -113,7 +113,7 @@ def getRate(fields, filtering, ext, sep, title) -> list:
         pre = predict(
             np.asarray(df_x["Days"]).reshape(-1, 1),
             df_x["Tasa"],
-            f"Tasa de mortalidad en {continentField}",
+            f"Tasa de mortalidad en {countryField}",
             "Muertes",
         )
         return [pre[0], pre[1], pre[2], pre[3], pre[4], tasa]
