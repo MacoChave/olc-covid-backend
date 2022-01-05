@@ -300,7 +300,7 @@ def predict(x, y, daysPredicted: int, title: str, y_label: str) -> list:
     plt.title(title)
     plt.xlabel("Dias")
     plt.ylabel(y_label)
-    plt.savefig(FILENAME)
+    plt.savefig(IMAGENAME)
 
     rmse = np.sqrt(mean_squared_error(y, y_))
     r2 = r2_score(y, y_)
