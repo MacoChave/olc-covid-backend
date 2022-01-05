@@ -23,13 +23,16 @@ def openImageB64(filename):
     return encoded_string
 
 
-def uploadImage(filename):
+def uploadImage(filename: str):
     s3 = boto3.client(
         "s3", aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY
     )
+    file_upload_name = filename.replace("./reporte/", "")
     with open(filename, "rb") as file:
         try:
-            s3.upload_fileobj(file, BUCKET, filename, ExtraArgs={"ACL": "public-read"})
+            s3.upload_fileobj(
+                file, BUCKET, file_upload_name, ExtraArgs={"ACL": "public-read"}
+            )
             print("Upload Successful")
             return f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{filename}"
         except FileNotFoundError:
