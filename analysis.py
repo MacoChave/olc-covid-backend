@@ -1,4 +1,3 @@
-from app import FILENAME
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -77,7 +76,7 @@ def getAnalysis(fields, filtering, ext, sep, title):
                 "coef": pre[4],
             }
         ]
-        genPDF(title, FILENAME)
+        genPDF(title, IMAGENAME)
         return result
     elif title == "Ánalisis Comparativo de Vacunación entre 2 paises":
         countryField1 = ""
@@ -112,7 +111,7 @@ def getAnalysis(fields, filtering, ext, sep, title):
 
         genGraph([pre1[5], pre2[5]])
         result = [{countryField1: pre1}, {countryField2: pre2}]
-        genPDF(title, pre1)
+        genPDF(title, IMAGENAME)
         return result
     else:  # Ánalisis Comparativo entres 2 o más paises o continentes
         countryField = ""
@@ -131,6 +130,7 @@ def getAnalysis(fields, filtering, ext, sep, title):
             f"Tasa de mortalidad en {countryField}",
             "Muertes",
         )
+        genPDF(title, IMAGENAME)
         return pre
 
 
@@ -200,4 +200,4 @@ def genGraph(datas: list):
     plt.title("Analisis comparativo de vacunación entre 2 países")
     plt.xlabel("Días")
     plt.ylabel("Vacunación")
-    plt.savefig(FILENAME)
+    plt.savefig(IMAGENAME)

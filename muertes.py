@@ -1,4 +1,3 @@
-from app import FILENAME
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -75,7 +74,7 @@ def getDeaths(fields, filtering, ext, sep, title) -> list:
             f"Muertes promedio por casos confirmados y edad de covid 19 en un País",
             "Muertes",
         )
-        genPDF(title, FILENAME)
+        genPDF(title, IMAGENAME)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], avgConfirm, avgYearOld]
     else:  # Muertes según regiones de un país - Covid 19
         countryField = ""
@@ -106,7 +105,7 @@ def getDeaths(fields, filtering, ext, sep, title) -> list:
             f"Muertes según regiones de un país - Covid 19",
             "Muertes",
         )
-        genPDF(title, FILENAME)
+        genPDF(title, IMAGENAME)
         return [pre[0], pre[1], pre[2], pre[3], pre[4], percent]
 
 
