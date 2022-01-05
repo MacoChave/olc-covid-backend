@@ -34,10 +34,16 @@ def uploadImage(filename: str):
                 file, BUCKET, file_upload_name, ExtraArgs={"ACL": "public-read"}
             )
             print("Upload Successful")
-            return f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{filename}"
+            return (
+                f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{file_upload_name}"
+            )
         except FileNotFoundError:
             print("The file was not found")
-            return f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{filename}"
+            return (
+                f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{file_upload_name}"
+            )
         except NoCredentialsError:
             print("Credentials not available")
-            return f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{filename}"
+            return (
+                f"https://res-covid19-olc.s3.us-east-2.amazonaws.com/{file_upload_name}"
+            )
